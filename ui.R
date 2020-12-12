@@ -1,16 +1,20 @@
 library(shiny)
+library(plotly)
+library(tidyr)
 
 shinyUI(fluidPage(
   
-  titlePanel("Histogram"),
+  titlePanel("Scatter 3D"),
   
   sidebarPanel(
-    sliderInput("plotWidth", "Plot width (px)", 200, 2000, 500),
-    sliderInput("plotHeight", "Plot height (px)", 200, 2000, 500),
+    selectInput("X", "X", choices = ""),
+    selectInput("Y", "Y", choices = ""),
+    selectInput("Z", "Z", choices = "")
+    
   ),
   
   mainPanel(
-    uiOutput("reacOut")
+    plotlyOutput("sp", height = "600px")
   )
   
 ))

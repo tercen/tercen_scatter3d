@@ -1,7 +1,8 @@
 library(shiny)
 library(tercen)
-library(dplyr)
-library(tidyr)
+library(plotly)
+library(tidyverse)
+library(reshape2)
 
 ############################################
 #### This part should not be modified
@@ -18,36 +19,40 @@ getCtx <- function(session) {
 ####
 ############################################
 
-shinyServer(function(input, output, session) {
+server <- shinyServer(function(input, output, session) {
   
-  dataInput <- reactive({
-    getValues(session)
+  what_cols = reactive({
+    c("0", "1", "2")
   })
   
-  output$reacOut <- renderUI({
-    plotOutput(
-      "main.plot",
-      height = input$plotHeight,
-      width = input$plotWidth
-    )
-  }) 
+  xyz = reactive({
+    cxyz = what_cols()
+    ctx = getCtx(session)
+    if(length(ctx$colors) > 0){
+      df = ctx %>%
+        select(.ri,.ci,.y) %>%
+        bind_cols(ctx$select(ctx$colors))
+      val = df %>%
+        dcast(.ri ~ .ci, value.var = ".y") %>% 
+        select(X = any_of(cxyz[1]), Y = any_of(cxyz[2]), Z = any_of(cxyz[3]))
+      clr = df %>% 
+        dcast(.ri ~ .ci, value.var = ctx$colors[[1]]) %>%
+        select(clr = any_of("0"))
+      result = val %>%bind_cols(clr)
+    } else {
+      result = ctx %>%
+        select(.ri,.ci,.y) %>%
+        dcast(.ri ~ .ci, value.var = ".y") %>% 
+        select(X = any_of(cxyz[1]), Y = any_of(cxyz[2]), Z = any_of(cxyz[3])) %>%
+        mutate(clr = ".")
+    }
+  })
   
-  output$main.plot <- renderPlot({
-    values <- dataInput()
-    data <- values$data$.y
-    hist(data)
+  output$sp <- renderPlotly({
+    df = xyz()
+    fig = plot_ly(df, x = ~X, y = ~Y, z = ~Z, color = ~clr)
+    fig = fig %>% add_markers()
   })
   
 })
-
-getValues <- function(session){
-  ctx <- getCtx(session)
-  values <- list()
-  
-  values$data <- ctx %>% select(.y, .ri, .ci) %>%
-    group_by(.ci, .ri) %>%
-    summarise(.y = mean(.y)) # take the mean of multiple values per cell
-  
-  return(values)
-}
 
