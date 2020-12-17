@@ -1,6 +1,6 @@
 {
   "name": "Scatter 3D",
-  "description": "Shiny operator to create 3D scatter plot",
+  "description": "Shiny operator to an interactive 3D scatter plot",
   "tags": ["template"],
   "authors": ["Rik de Wijn"],
   "urls": ["https://github.com/rdewijn/tercen_scatter3d.git"]

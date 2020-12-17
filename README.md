@@ -1,28 +1,22 @@
-# Template Shiny operator for Tercen
+# 3D scatter plot operator for tercen
 
 ##### Description
 
-The `Template Shiny operator` is a template repository for the creation of Shiny operators in Tercen.
+Shiny application for creating 3D scatter plots from tercen.
+
+- Interactive rotation
+- Interactive selection of columns to plot
+- Interactive selection of factors to colour by.
 
 ##### Usage
+Creates 3D scatter plots from columns in tercen.
 
 Input projection|.
 ---|---
-`x-axis`        | type, description 
-`y-axis`        | type, description 
-`row`           | type, description 
-`column`        | type, description 
-`colors`        | type, description 
-`labels`        | type, description 
+`column`        | Factor(s) creating the columns. Columns to use in the plot can be selected in the application.
+`colors`        | Factor(s) or variable(s) added as colors are used to colour the points in the scatter plot 
 
 Output relations|.
 ---|---
-`Operator view`        | view of the Shiny application
+`Operator view`        | Interactive 3D scatter plot application
 
-##### Details
-
-Details on the computation.
-
-##### See Also
-
-[template_R_operator](https://github.com/tercen/template_R_operator)
