@@ -19,7 +19,7 @@ getCtx <- function(session) {
 ####
 ############################################
 
-server <- shinyServer(function(input, output, session) {
+server <- function(input, output, session) {
   ctx = getCtx(session)
   clist = ctx$cselect() %>% 
     unite("clist") %>% 
@@ -96,4 +96,4 @@ server <- shinyServer(function(input, output, session) {
     fig = plot_ly(df, x = ~X, y = ~Y, z = ~Z, color = ~clr)
     fig = fig %>% add_markers()
   })
-})
+}
