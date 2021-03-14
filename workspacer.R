@@ -3,6 +3,7 @@ library(tercen)
 library(plotly)
 library(tidyverse)
 library(reshape2)
+
  
 source("ui.R")
 source("server.R")
@@ -12,14 +13,11 @@ source("server.R")
 ############################################
 #### This part should not be included in ui.R and server.R scripts
 getCtx <- function(session) {
-  ctx <- tercenCtx(workflowId = "0612c2394fcb749bb65db387fd0069f6",
-                   stepId = "850b44ed-c0a7-4976-8723-4d74f3c28693")
+  ctx <- tercenCtx(workflowId = "8f17d834dda49eba43ac822ed600aa7b",
+                   stepId = "706ac7cf-8dd6-41a9-83a7-b5802ea67031")
   return(ctx)
 }
 ####
 ############################################
-
-
-
 
 runApp(shinyApp(ui, server))  
