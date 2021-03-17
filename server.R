@@ -21,80 +21,71 @@ getCtx <- function(session) {
 ############################################
 
 server <- function(input, output, session) {
-  ctx = getCtx(session)
-  clist = ctx$cselect() %>% 
-    unite("clist") %>% 
-    mutate(cname = as.character( (1:n())-1))
   
-  updateSelectInput(session, "X", choices = clist$clist, selected = clist$clist[1])
-  updateSelectInput(session, "Y", choices = clist$clist, selected = clist$clist[2])
-  updateSelectInput(session, "Z", choices = clist$clist, selected = clist$clist[3])
-  
-  if(length(ctx$colors) > 0){
-    clr = data.frame(clist = unlist(ctx$colors)) %>%
-      mutate(cname = as.character( (1:n())-1))
-    updateSelectInput(session, "ColourBy", choices = clr$clist, selected = clr$clist[1])
-  }
-  
-  whatx = reactive({
-    if (input$X == ""){
-      clist$cname[1]
-    } else {
-      slist = clist %>% filter(input$X == clist)
-      slist$cname
-    }
+  dataInput <- reactive({
+    getValues(session)
   })
   
-  whaty = reactive({
-    if (input$Y == ""){
-      clist$cname[2]
-    } else {
-      slist = clist %>% filter(input$Y == clist)
-      slist$cname
-    }
+  observe({
+    df = dataInput()
+    
+    if (input$X == "") return()
+    
+    cnames = levels(df$cnames)
+    
+    whatx = reactive({
+      name = ifelse (input$X == "", cnames[1], input$X)
+      data = df %>% filter(cnames == name) %>% arrange(.ri, .ci)
+      return(data$.y)
+    })
+    
+    whaty = reactive({
+      name = ifelse (input$Y == "", cnames[1], input$Y)
+      data = df %>% filter(cnames == name) %>% arrange(.ri, .ci)
+      return(data$.y)
+    })
+    
+    whatz = reactive({
+      name = ifelse (input$Z == "", cnames[1], input$Z)
+      data = df %>% filter(cnames == name) %>% arrange(.ri, .ci)
+      return(data$.y)
+    })
+    
+    whatclr = reactive({
+      data = df %>% filter(cnames == cnames[1]) %>% 
+        arrange(.ri, .ci) %>%
+        select(clr = all_of(input$ColourBy))
+      return(data$clr)
+    })
+    
+    xyz = reactive({
+      xyz = data.frame(X = whatx(), Y = whaty(), Z = whatz(), clr = whatclr())
+    })
+    
+    output$sp <- renderPlotly({
+      df = xyz()
+      fig = plot_ly(df, x = ~X, y = ~Y, z = ~Z, color = ~clr)
+      fig = fig %>% add_markers()
+    })
+    
   })
+}
+
+getValues <- function(session){
+  ctx <- getCtx(session)
+  df <- ctx %>% 
+    select(.y, .ri, .ci)
+  if(length(ctx$colors)) df = df %>% bind_cols(ctx$select(ctx$colors))
+  if(length(ctx$labels)) df = df %>% bind_cols(ctx$select(ctx$labels))
   
-  whatz = reactive({
-    if (input$Z == ""){
-      clist$cname[3]
-    } else {
-      slist = clist %>% filter(input$Z == clist)
-      slist$cname
-    }
-  })
+  cnames = ctx$cselect()[[1]]
+  updateSelectInput(session, "X", choices = cnames, selected = cnames[1])
+  updateSelectInput(session, "Y", choices = cnames, selected = cnames[2])
+  updateSelectInput(session, "Z", choices = cnames, selected = cnames[3])
+  updateSelectInput(session, "ColourBy", choices = unlist(ctx$colors))
   
-  whatclr = reactive({
-    if (input$ColourBy == ""){
-      clr$clist[1]
-    } else {
-      input$ColourBy
-    }
-  })
-  
-  xyz = reactive({
-    if(length(ctx$colors) > 0){
-      df = ctx %>%
-        select(.ri,.ci,.y) %>%
-        bind_cols(ctx$select(ctx$colors))
-      val = df %>%
-        dcast(.ri ~ .ci, value.var = ".y") %>% 
-        select(X = whatx(), Y = whaty(), Z = whatz())
-      clr = df %>% 
-        dcast(.ri ~ .ci, value.var = whatclr()) %>%
-        select(clr = "0")
-      result = val %>%bind_cols(clr)
-    } else {
-      result = ctx %>%
-        select(.ri,.ci,.y) %>%
-        dcast(.ri ~ .ci, value.var = ".y") %>% 
-        select(X = whatx(), Y = whaty() , Z = whatz()) %>%
-        mutate(clr = ".")
-    }
-  })
-  
-  output$sp <- renderPlotly({
-    df = xyz()
-    fig = plot_ly(df, x = ~X, y = ~Y, z = ~Z, color = ~clr)
-    fig = fig %>% add_markers()
-  })
+  df = df %>% 
+    left_join(data.frame(.ci = 0:(length(cnames)-1), cnames), by = ".ci") %>%
+    mutate( across(!where(is.numeric), as.factor)) 
+  return(df)
 }
