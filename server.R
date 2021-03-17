@@ -22,11 +22,14 @@ getCtx <- function(session) {
 
 server <- function(input, output, session) {
   
-  dataInput <- reactive({
-    getValues(session)
-  })
+
   
   observe({
+    
+    dataInput <- reactive({
+      getValues(session)
+    })
+    
     df = dataInput()
     
     if (input$X == "") return()
