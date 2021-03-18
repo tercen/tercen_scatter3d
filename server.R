@@ -67,7 +67,7 @@ server <- function(input, output, session) {
     
     output$sp <- renderPlotly({
       plot.df = xyz()
-      fig = plot_ly(plot.df, x = ~X, y = ~Y, z = ~Z, color = ~clr)
+      fig = plot_ly(plot.df, x = ~X, y = ~Y, color = ~clr)
       fig = fig %>% add_markers()
     })
     
