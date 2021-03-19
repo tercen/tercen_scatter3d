@@ -4,7 +4,6 @@ library(plotly)
 library(tidyverse)
 library(reshape2)
 
-
 ############################################
 #### This part should not be modified
 getCtx <- function(session) {
@@ -22,55 +21,52 @@ getCtx <- function(session) {
 
 server <- shinyServer( 
   function(input, output, session) {
-  observe({
     
     dataInput <- reactive({
       getValues(session)
+    })  
+    
+    observe({
+      df = dataInput()
+      cnames = levels(df$cnames)
+      
+      whatx = reactive({
+        name = ifelse (input$X == "", cnames[1], input$X)
+        data = df %>% filter(cnames == name) %>% arrange(.ri, .ci)
+        return(data$.y)
+      })
+      
+      whaty = reactive({
+        name = ifelse (input$Y == "", cnames[1], input$Y)
+        data = df %>% filter(cnames == name) %>% arrange(.ri, .ci)
+        return(data$.y)
+      })
+      
+      whatz = reactive({
+        name = ifelse (input$Z == "", cnames[1], input$Z)
+        data = df %>% filter(cnames == name) %>% arrange(.ri, .ci)
+        return(data$.y)
+      })
+      
+      whatclr = reactive({
+        data = df %>% filter(cnames == cnames[1]) %>% 
+          arrange(.ri, .ci) %>%
+          select(clr = all_of(input$ColourBy))
+        return(data$clr)
+      })
+      
+      xyz = reactive({
+        xyz = data.frame(X = whatx(), Y = whaty(), Z = whatz(), clr = whatclr())
+      })
+      
+      output$sp <- renderPlotly({
+        plot.df = xyz()
+        fig = plot_ly(plot.df, x = ~X, y = ~Y, z = ~Z ,color = ~clr)
+        fig = fig %>% add_markers()
+      })
+      
     })
-    
-    df = dataInput()
-    
-    if (input$X == "") return()
-    
-    cnames = levels(df$cnames)
-    
-    whatx = reactive({
-      name = ifelse (input$X == "", cnames[1], input$X)
-      data = df %>% filter(cnames == name) %>% arrange(.ri, .ci)
-      return(data$.y)
-    })
-    
-    whaty = reactive({
-      name = ifelse (input$Y == "", cnames[1], input$Y)
-      data = df %>% filter(cnames == name) %>% arrange(.ri, .ci)
-      return(data$.y)
-    })
-    
-    whatz = reactive({
-      name = ifelse (input$Z == "", cnames[1], input$Z)
-      data = df %>% filter(cnames == name) %>% arrange(.ri, .ci)
-      return(data$.y)
-    })
-    
-    whatclr = reactive({
-      data = df %>% filter(cnames == cnames[1]) %>% 
-        arrange(.ri, .ci) %>%
-        select(clr = all_of(input$ColourBy))
-      return(data$clr)
-    })
-    
-    xyz = reactive({
-      xyz = data.frame(X = whatx(), Y = whaty(), Z = whatz(), clr = whatclr())
-    })
-    
-    output$sp <- renderPlotly({
-      plot.df = xyz()
-      fig = plot_ly(plot.df, x = ~X, y = ~Y, z = ~Z ,color = ~clr)
-      fig = fig %>% add_markers()
-    })
-    
   })
-})
 
 getValues <- function(session){
   ctx <- getCtx(session)
