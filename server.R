@@ -20,10 +20,8 @@ getCtx <- function(session) {
 ####
 ############################################
 
-server <- function(input, output, session) {
-  
-
-  
+server <- shinyServer( 
+  function(input, output, session) {
   observe({
     
     dataInput <- reactive({
@@ -67,12 +65,12 @@ server <- function(input, output, session) {
     
     output$sp <- renderPlotly({
       plot.df = xyz()
-      fig = plot_ly(plot.df, x = ~X, y = ~Y, color = ~clr)
+      fig = plot_ly(plot.df, x = ~X, y = ~Y, z = ~Z ,color = ~clr)
       fig = fig %>% add_markers()
     })
     
   })
-}
+})
 
 getValues <- function(session){
   ctx <- getCtx(session)
@@ -92,3 +90,4 @@ getValues <- function(session){
     mutate( across(!where(is.numeric), as.factor)) 
   return(df)
 }
+
