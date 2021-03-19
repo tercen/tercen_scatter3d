@@ -2,7 +2,7 @@ library(shiny)
 library(plotly)
 library(tidyr)
 
-ui <- shinyUI(fluidPage(
+ui = shinyUI(fluidPage(
   
   titlePanel("Scatter 3D"),
   
