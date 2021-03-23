@@ -9,7 +9,7 @@ Shiny application for creating 3D scatter plots from tercen.
 - Interactive selection of factors to colour by.
 
 ##### Usage
-Creates 3D scatter plots from columns in tercen.
+Creates 3D scatter plots from columns in the cross=tab view of Tercen.
 
 Input projection|.
 ---|---
