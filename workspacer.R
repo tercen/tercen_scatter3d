@@ -7,7 +7,7 @@ library(reshape2)
 source("ui.R")
 source("server.R")
 
-options("tercen.workflowId"= "8f17d834dda49eba43ac822ed600aa7b")
-options("tercen.stepId"= "706ac7cf-8dd6-41a9-83a7-b5802ea67031")
+options("tercen.workflowId"= "0844af3c27bc4f1fd354e37fa800aa8e")
+options("tercen.stepId"= "bd77e430-6e3c-4542-956e-dd8e6458aaa3")
 
 runApp(shinyApp(ui, server))  

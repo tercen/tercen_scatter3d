@@ -61,7 +61,7 @@ server <- shinyServer(
       
       output$sp <- renderPlotly({
         plot.df = xyz()
-        fig = plot_ly(plot.df, x = ~X, y = ~Y, z = ~Z ,color = ~clr)
+        fig = plot_ly(plot.df, x = ~X, y = ~Y, z = ~Z ,split = ~clr)
         fig = fig %>% add_markers()
       })
       
